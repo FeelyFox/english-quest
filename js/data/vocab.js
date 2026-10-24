@@ -3,6 +3,7 @@ window.DATA = window.DATA || {};
 
 DATA.vocab = {
   work: {
+    level: "B1",
     title: "Vocabulaire pro & studio",
     emoji: "💼",
     desc: "Les mots qu'on entend tous les jours en stand-up, en review, sur Slack.",
@@ -70,6 +71,7 @@ DATA.vocab = {
   },
 
   phrasal: {
+    level: "B1",
     title: "Phrasal verbs",
     emoji: "🧩",
     desc: "Le cœur de l'anglais oral : les Anglais en mettent partout.",
@@ -116,6 +118,7 @@ DATA.vocab = {
   },
 
   falsefriends: {
+    level: "B1",
     title: "Faux amis",
     emoji: "🪤",
     desc: "Les pièges classiques des francophones. À maîtriser absolument.",

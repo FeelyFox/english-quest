@@ -1,9 +1,10 @@
 // Service worker : met l'app en cache pour qu'elle marche hors ligne (métro, avion).
 // Incrémente VERSION à chaque modification des fichiers pour forcer la mise à jour.
-const VERSION = "english-quest-v2";
+const VERSION = "english-quest-v3";
 const FILES = [
   "./", "index.html", "manifest.json", "css/style.css",
   "js/data/vocab.js", "js/data/phrases.js", "js/data/grammar.js", "js/data/verbs.js",
+  "js/data/vocab-levels.js", "js/data/grammar-levels.js", "js/data/listening.js",
   "js/store.js", "js/srs.js", "js/check.js", "js/speech.js", "js/cards.js", "js/app.js",
   "icons/icon-192.png", "icons/icon-512.png"
 ];

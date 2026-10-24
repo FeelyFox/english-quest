@@ -30,6 +30,40 @@
     return `<div class="bar"><i class="mature" style="width:${(mature / total) * 100}%"></i><i class="learn" style="width:${((seen - mature) / total) * 100}%"></i></div>`;
   }
 
+  // Un niveau est « en cours » tant que moins de 80 % de ses cartes ont été découvertes
+  const LEVEL_DONE = 0.8;
+  const LEVEL_NAMES = { A2: "Élémentaire", B1: "Seuil", B2: "Avancé", C1: "Autonome" };
+
+  function levelStats() {
+    return Cards.LEVELS.map((level) => ({ level, ...deckStats((c) => c.level === level) }));
+  }
+
+  function currentLevel() {
+    const start = Cards.rank(st().settings.startLevel);
+    const stats = levelStats();
+    for (let r = start; r < stats.length; r++) {
+      if (stats[r].seen / stats[r].total < LEVEL_DONE) return stats[r].level;
+    }
+    return Cards.LEVELS[Cards.LEVELS.length - 1];
+  }
+
+  function levelPanel() {
+    const cur = currentLevel();
+    const stats = levelStats();
+    return `<section class="panel mt">
+      <div class="row"><h2 style="margin:0">Ton parcours</h2><span class="spacer"></span><span class="level-badge big">${cur} · ${LEVEL_NAMES[cur]}</span></div>
+      <div class="levels mt">${stats.map((l) => {
+        const seenPct = Math.round((l.seen / l.total) * 100), maturePct = Math.round((l.mature / l.total) * 100);
+        return `<div class="level-row ${l.level === cur ? "current" : ""}">
+          <span class="level-badge">${l.level}</span>
+          <div class="spacer">${progressBar(l)}</div>
+          <span class="small muted" style="min-width:110px;text-align:right">${seenPct}% vu · ${maturePct}% maîtrisé</span>
+        </div>`;
+      }).join("")}</div>
+      <p class="small muted">Les nouvelles cartes viennent de ton niveau en cours. Tu passes au suivant quand ${LEVEL_DONE * 100}% du niveau est découvert ; les révisions continuent pour ne rien oublier.</p>
+    </section>`;
+  }
+
   function newLeftToday() {
     return Math.max(0, st().settings.newPerDay - Store.dayLog().fresh);
   }
@@ -73,6 +107,8 @@
         </div>
       </section>
 
+      ${levelPanel()}
+
       <section class="panel tip mt"><b>💡 Conseil du jour</b><br>${tip}</section>
 
       <h2 class="mt2">Modules</h2>
@@ -80,7 +116,7 @@
         ${Object.entries(decks).map(([id, d]) => {
           const s = deckStats(d.filter);
           return `<a class="panel module" href="#/deck/${id}">
-            <div class="row"><span class="emoji">${d.emoji}</span><h3>${esc(d.title)}</h3></div>
+            <div class="row"><span class="emoji">${d.emoji}</span><h3>${esc(d.title)}</h3>${d.level ? `<span class="spacer"></span><span class="level-badge">${d.level}</span>` : ""}</div>
             <div class="muted small">${esc(d.desc)}</div>
             ${progressBar(s)}
             <div class="small muted mt">${s.seen}/${s.total} vues · ${s.mature} maîtrisées${s.due ? ` · <b style="color:var(--hard)">${s.due} à revoir</b>` : ""}</div>
@@ -105,7 +141,8 @@
 
     let body = "";
     if (isGrammar) {
-      body = `<div class="list">${DATA.grammar.filter((t) => t.kind === id).map((t) => {
+      const topics = DATA.grammar.filter((t) => t.kind === id);
+      body = Cards.LEVELS.filter((lv) => topics.some((t) => t.level === lv)).map((lv) => `<h3 class="mt">${lv} · ${LEVEL_NAMES[lv]}</h3><div class="list">${topics.filter((t) => t.level === lv).map((t) => {
         const ts = deckStats((c) => c.topic === t.id);
         return `<div class="item topic">
           <span class="dot ${ts.mature === ts.total ? "mature" : ts.seen ? "learn" : ""}"></span>
@@ -113,7 +150,7 @@
           <a class="btn ghost" href="#/lesson/${t.id}">📖 Leçon</a>
           <a class="btn" href="#/practice/topic/${t.id}">S'entraîner</a>
         </div>`;
-      }).join("")}</div>`;
+      }).join("")}</div>`).join("");
     } else {
       const cards = Cards.all().filter(d.filter);
       body = `
@@ -123,7 +160,7 @@
           <div class="item" data-text="${esc((c.fr + " " + (c.en || c.base + " " + c.past + " " + c.pp)).toLowerCase())}">
             <span class="dot ${cardStatus(c)}"></span>
             <div class="spacer">
-              <div class="en">${esc(c.type === "verb" ? `${c.base} – ${first(c.past)} – ${first(c.pp)}` : first(c.en))}</div>
+              <div class="en">${esc(c.type === "verb" ? `${c.base} – ${first(c.past)} – ${first(c.pp)}` : first(c.en))}${c.level && d.level && d.level.includes("→") ? ` <span class="level-badge">${c.level}</span>` : ""}</div>
               <div class="fr small">${esc(c.fr)}</div>
             </div>
             <button class="btn icon ghost" data-say="${esc(c.type === "verb" ? `${c.base}, ${first(c.past)}, ${first(c.pp)}` : first(c.en))}" aria-label="Écouter">🔊</button>
@@ -196,16 +233,51 @@
 
   // ---------- Session ----------
   let S = null;
-  const DECK_ORDER = ["work", "grammar", "verbs", "phrasal", "conj", "falsefriends", "phrases", "custom"];
+  // Familles de cartes et leur poids dans les nouvelles cartes du jour (sur 10)
+  const BUCKETS = [
+    { types: ["vocab"], weight: 3 },
+    { types: ["grammar"], weight: 3 },
+    { types: ["verb"], weight: 1 },
+    { types: ["phrase"], weight: 1 },
+    { types: ["dictation"], weight: 1 },
+    { types: ["translate"], weight: 1 }
+  ];
 
-  // Entrelacement : on alterne les types de cartes (interleaving) au lieu de faire des blocs
-  function interleave(cards, limit) {
-    const groups = DECK_ORDER.map((d) => cards.filter((c) => c.deck === d)).filter((g) => g.length);
+  // Dans une famille : niveau croissant, et on alterne les modules d'un même niveau
+  // (sauf la grammaire, qui suit l'ordre pédagogique des leçons)
+  function orderBucket(cards) {
     const out = [];
-    while (out.length < limit && groups.some((g) => g.length)) {
-      for (const g of groups) if (g.length && out.length < limit) out.push(g.shift());
+    for (const lv of [...Cards.LEVELS, null]) {
+      const decks = {};
+      cards.filter((c) => c.level === lv).forEach((c) => (decks[c.type === "grammar" ? "grammar" : c.deck] ||= []).push(c));
+      const groups = Object.values(decks);
+      while (groups.some((g) => g.length)) for (const g of groups) if (g.length) out.push(g.shift());
     }
     return out;
+  }
+
+  // Entrelacement (interleaving) : on alterne les familles au lieu de faire des blocs
+  function interleave(cards, limit) {
+    // Les mots perso passent en premier : ce sont les plus utiles
+    const out = cards.filter((c) => c.deck === "custom").slice(0, limit);
+    const groups = BUCKETS.map((b) => ({ ...b, cards: orderBucket(cards.filter((c) => c.deck !== "custom" && b.types.includes(c.type))) }));
+    while (out.length < limit && groups.some((g) => g.cards.length)) {
+      for (const g of groups) for (let k = 0; k < g.weight && g.cards.length && out.length < limit; k++) out.push(g.cards.shift());
+    }
+    return out;
+  }
+
+  // Nouvelles cartes : celles du niveau en cours (et des niveaux précédents non finis),
+  // complétées par le niveau suivant s'il n'en reste plus assez
+  function pickNew(cards, limit, practice) {
+    const unseen = cards.filter((c) => !st().cards[c.id]);
+    if (practice) return interleave(unseen, limit);
+    const start = Cards.rank(st().settings.startLevel);
+    const cur = Cards.rank(currentLevel());
+    const inRange = (c, max) => c.level === null || (Cards.rank(c.level) >= start && Cards.rank(c.level) <= max);
+    let pool = unseen.filter((c) => inRange(c, cur));
+    if (pool.length < limit) pool = unseen.filter((c) => inRange(c, cur + 1));
+    return interleave(pool, limit);
   }
 
   function startSession(filter, practice, label) {
@@ -213,7 +285,7 @@
     const cards = Cards.all().filter(filter);
     const due = shuffle(cards.filter((c) => SRS.isDue(st().cards[c.id], now))).slice(0, practice ? 30 : 150);
     const newLimit = practice ? 10 : newLeftToday();
-    const fresh = interleave(cards.filter((c) => !st().cards[c.id]), newLimit);
+    const fresh = pickNew(cards, newLimit, practice);
 
     // On répartit les nouvelles cartes au milieu des révisions
     const queue = [];
@@ -260,7 +332,7 @@
     const { item } = S;
     const c = item.card;
     const pct = S.total ? (S.done / S.total) * 100 : 0;
-    const tag = `<span class="tag ${item.isNew ? "new" : ""}">${item.isNew ? "Nouveau · " : ""}${esc(deckTitle(c))}</span>`;
+    const tag = `<div class="row"><span class="tag ${item.isNew ? "new" : ""}">${item.isNew ? "Nouveau · " : ""}${esc(deckTitle(c))}</span><span class="spacer"></span>${c.level ? `<span class="level-badge">${c.level}</span>` : ""}</div>`;
     const answered = S.phase === "answer";
     const cls = answered && S.result !== "self" ? S.result : "";
     // Après correction, on réaffiche la saisie (désactivée) avec sa couleur de verdict
@@ -293,6 +365,19 @@
         <div class="hint">Comment le dirais-tu ? Formule-le <b>à voix haute</b>, puis révèle.</div>
         <div class="prompt">${esc(c.fr)}</div>
         <div id="mic-result" class="mic-result"></div>`;
+    } else if (c.type === "dictation") {
+      body = `
+        <div class="hint">Écoute et écris ce que tu entends</div>
+        <div class="row mt">
+          <button class="btn primary big" data-say="${esc(c.en)}">🔊 Écouter</button>
+          <button class="btn" data-say-slow="${esc(c.en)}">🐢 Lentement</button>
+        </div>
+        <textarea ${field(0).replace(/ value="[^"]*"/, "")} id="a1" rows="2" ${INPUT_ATTRS} placeholder="Ce que tu entends…" style="margin-top:16px">${answered ? esc(S.input[0]) : ""}</textarea>`;
+    } else if (c.type === "translate") {
+      body = `
+        <div class="hint">Traduis la phrase en anglais</div>
+        <div class="prompt">${esc(c.fr)}</div>
+        <textarea ${field(0).replace(/ value="[^"]*"/, "")} id="a1" rows="3" ${INPUT_ATTRS} placeholder="Ta traduction…" style="margin-top:12px">${answered ? esc(S.input[0]) : ""}</textarea>`;
     }
 
     const actions = answered ? "" : (c.type === "phrase"
@@ -300,6 +385,7 @@
          <span class="spacer"></span>
          <button class="btn primary" id="check">Révéler <kbd>Entrée</kbd></button>`
       : `${c.type === "vocab" ? `<button class="btn ghost" id="hint">Indice</button>` : ""}
+         ${c.type === "dictation" ? `<button class="btn ghost" id="show-fr">Voir en français</button>` : ""}
          <button class="btn ghost" id="idk">Je ne sais pas</button>
          <span class="spacer"></span>
          <button class="btn primary" id="check">Vérifier <kbd>Entrée</kbd></button>`);
@@ -327,6 +413,9 @@
       if (idk) idk.onclick = () => check(true);
       const hint = document.getElementById("hint");
       if (hint) hint.onclick = giveHint;
+      const showFr = document.getElementById("show-fr");
+      if (showFr) showFr.onclick = () => { S.usedHint = true; showFr.outerHTML = `<span class="muted small">« ${esc(c.fr)} »</span>`; };
+      if (c.type === "dictation") Speech.say(c.en);
       const mic = document.getElementById("mic");
       if (mic) mic.onclick = () => listenPhrase(mic);
       const a2 = document.getElementById("a2");
@@ -370,7 +459,12 @@
       const r1 = Check.grade(v1, c.past), r2 = Check.grade(v2, c.pp);
       result = r1 === "ok" && r2 === "ok" ? "ok" : (r1 !== "ko" && r2 !== "ko") ? "near" : "ko";
     } else if (c.type === "grammar") result = Check.grade(v1, c.a);
-    else result = Check.grade(v1, c.en, true);
+    else if (c.type === "dictation" || c.type === "translate") {
+      const r = Check.sentence(v1, c.en, c.type === "dictation" ? 0.85 : 0.75);
+      result = r.result;
+      S.closest = r.model;
+    } else result = Check.grade(v1, c.en, true);
+    if (giveUp === true) S.closest = first(c.en || "");
 
     S.result = result;
     S.input = [v1, v2];
@@ -429,6 +523,22 @@
         ${S.spoken ? `<div class="note">Ta version orale : « ${esc(S.spoken.said)} » — proximité avec le modèle ${S.spoken.score}%</div>` : ""}
         <div class="note">Écoute et <b>répète à voix haute</b> en imitant l'intonation (shadowing). Puis note-toi honnêtement.</div>`;
       S.spoken = null;
+    } else if (c.type === "dictation") {
+      speakText = c.en;
+      html = `${verdict}
+        ${r !== "ok" && v1 ? `<div class="diff">${Check.diffHTML(v1, c.en, esc)}</div>` : ""}
+        <div class="correct">${esc(c.en)} <button class="btn icon ghost" data-say="${esc(c.en)}">🔊</button></div>
+        <div class="note">« ${esc(c.fr)} »</div>
+        <div class="note">Réécoute et répète la phrase à voix haute en imitant le rythme.</div>`;
+    } else if (c.type === "translate") {
+      const models = c.en.split("|");
+      const closest = S.closest || models[0];
+      speakText = closest;
+      html = `${verdict}
+        ${r !== "ok" && v1 ? `<div class="diff">${Check.diffHTML(v1, closest, esc)}</div><div class="note small">Comparé au modèle le plus proche : <del>en trop</del> · <ins>manquant</ins></div>` : ""}
+        ${models.map((m) => `<div class="correct mt">${esc(m)} <button class="btn icon ghost" data-say="${esc(m)}">🔊</button></div>`).join("")}
+        ${c.note ? `<div class="note">${c.note}</div>` : ""}
+        ${r !== "ok" ? `<div class="note">Ta phrase est correcte mais formulée autrement ? Note-toi <b>Bien</b> : c'est toi le juge.</div>` : ""}`;
     }
 
     const fb = document.getElementById("feedback");
@@ -531,6 +641,16 @@
       </section>
 
       <section class="panel mt">
+        <h2>Progression par niveau</h2>
+        <div class="levels">${levelStats().map((l) => `<div class="level-row">
+          <span class="level-badge">${l.level}</span>
+          <div class="spacer">${progressBar(l)}</div>
+          <span class="small muted" style="min-width:150px;text-align:right">${l.seen}/${l.total} vues · ${l.mature} maîtrisées</span>
+        </div>`).join("")}</div>
+        <p class="small muted">Une carte est « maîtrisée » quand son intervalle de révision dépasse 3 semaines.</p>
+      </section>
+
+      <section class="panel mt">
         <h2>Prévisions</h2>
         <div class="row">${forecast.map((n, i) => `<div class="stat" style="min-width:70px"><b>${n}</b><span>${i === 0 ? "auj." : i === 1 ? "demain" : `J+${i}`}</span></div>`).join("")}</div>
       </section>
@@ -565,6 +685,18 @@
         <h3>6. Feedback immédiat</h3>
         <p>Chaque erreur est corrigée et expliquée tout de suite, avant qu'elle ne s'installe.</p>
 
+        <h3>7. Une progression par niveaux (A2 → C1)</h3>
+        <p>Chaque carte est classée selon le Cadre européen (CECRL). Les nouvelles cartes viennent de ton niveau en cours ; tu passes au suivant quand 80 % du niveau est découvert. Les révisions des niveaux précédents continuent pour consolider.</p>
+        <ul>
+          <li><b>A2</b> : les bases solides (be, past simple, pronoms, articles) + le vocabulaire de survie au bureau.</li>
+          <li><b>B1</b> : tous les temps courants, le vocabulaire pro et les phrasal verbs. Tu tiens une conversation.</li>
+          <li><b>B2</b> : conditionnels mixtes, regrets, modaux au passé, argumentation. Tu débats en réunion.</li>
+          <li><b>C1</b> : inversion, phrases clivées, nuance, idiomes. Tu parles avec aisance et diplomatie.</li>
+        </ul>
+        <h3>8. Les 4 compétences</h3>
+        <p>Vocabulaire et grammaire (cartes), <b>compréhension orale</b> (dictées), <b>expression écrite</b> (traductions de phrases complètes) et <b>expression orale</b> (phrases clés au micro).</p>
+        <p class="muted">Ordre de grandeur réaliste : environ 6 mois de pratique quotidienne pour viser le B1 solide, puis 1 à 2 ans pour le B2/C1, en complétant avec l'immersion ci-dessous.</p>
+
         <h2 class="mt2">🎮 Ton plan au quotidien</h2>
         <ul>
           <li><b>Chaque jour, 10-15 min</b> : la session du jour (dans le métro, en pause café).</li>
@@ -586,6 +718,11 @@
         <div class="field"><label>Nouvelles cartes par jour</label>
           <input type="number" id="newPerDay" min="0" max="100" value="${s.newPerDay}" inputmode="numeric">
           <span class="small muted">15 est un bon rythme (~10-15 min/jour). Les révisions s'accumulent : n'augmente pas trop vite.</span></div>
+        <div class="field"><label>Niveau de départ</label>
+          <select id="startLevel">
+            ${Cards.LEVELS.map((lv) => `<option value="${lv}" ${s.startLevel === lv ? "selected" : ""}>${lv} · ${LEVEL_NAMES[lv]}</option>`).join("")}
+          </select>
+          <span class="small muted">Les niveaux inférieurs restent accessibles depuis chaque module. Si les cartes te paraissent trop faciles, monte d'un cran.</span></div>
         <div class="field"><label>Accent</label>
           <select id="accent">
             <option value="en-GB" ${s.accent === "en-GB" ? "selected" : ""}>🇬🇧 Britannique</option>
@@ -612,6 +749,7 @@
     const saveSetting = (k, v) => { st().settings[k] = v; Store.save(); };
     document.getElementById("newPerDay").onchange = (e) => saveSetting("newPerDay", Math.max(0, Math.min(100, +e.target.value || 0)));
     document.getElementById("accent").onchange = (e) => saveSetting("accent", e.target.value);
+    document.getElementById("startLevel").onchange = (e) => saveSetting("startLevel", e.target.value);
     document.getElementById("rate").oninput = (e) => { saveSetting("rate", +e.target.value); document.getElementById("rate-v").textContent = e.target.value; };
     document.getElementById("autoplay").onchange = (e) => saveSetting("autoplay", e.target.checked);
     document.getElementById("export").onclick = () => {
@@ -674,6 +812,8 @@
   document.addEventListener("click", (e) => {
     const say = e.target.closest("[data-say]");
     if (say) { e.preventDefault(); Speech.say(say.dataset.say); return; }
+    const slow = e.target.closest("[data-say-slow]");
+    if (slow) { e.preventDefault(); Speech.say(slow.dataset.saySlow, 0.65); return; }
     const gr = e.target.closest("[data-grade]");
     if (gr) { rate(+gr.dataset.grade); return; }
     const goEl = e.target.closest("[data-go]");

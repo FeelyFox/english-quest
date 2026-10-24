@@ -16,13 +16,13 @@ const Speech = (() => {
       || voices.find((v) => v.lang.startsWith("en"));
   }
 
-  function say(text) {
+  function say(text, rateOverride) {
     if (!synth || !text) return;
     synth.cancel();
     const { accent, rate } = Store.state.settings;
     const u = new SpeechSynthesisUtterance(text.replace(/…/g, "..."));
     u.lang = accent;
-    u.rate = rate;
+    u.rate = rateOverride || rate;
     const v = pickVoice(accent);
     if (v) u.voice = v;
     synth.speak(u);

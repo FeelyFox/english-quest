@@ -76,5 +76,43 @@ const Check = (() => {
     return 1 - levenshtein(x, y) / Math.max(x.length, y.length);
   }
 
-  return { grade, similarity, norm };
+  // Phrases complètes (dictée, traduction) : on compare mot à mot au modèle le plus proche
+  // Les nombres écrits en chiffres valent leur forme en lettres (« 10 » = « ten »)
+  const UNITS = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" ");
+  const TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split(" ");
+  const spell = (n) => n < 20 ? UNITS[n] : TENS[Math.floor(n / 10)] + (n % 10 ? " " + UNITS[n % 10] : "");
+  const words = (s) => norm(s).replace(/[—–-]/g, " ").replace(/\b\d{1,2}\b/g, (d) => spell(+d))
+    .replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+
+  function sentence(input, accepted, nearAt) {
+    let best = { model: accepted.split("|")[0], sim: -1 };
+    for (const model of accepted.split("|")) {
+      const a = words(input).join(" "), b = words(model).join(" ");
+      for (const d of [" would", " had"]) {
+        if (expand(a, d) === expand(b, d)) return { result: "ok", model, sim: 1 };
+      }
+      const sim = similarity(words(input).join(" "), words(model).join(" "));
+      if (sim > best.sim) best = { model, sim };
+    }
+    return { result: best.sim >= nearAt ? "near" : "ko", model: best.model, sim: best.sim };
+  }
+
+  // Diff mot à mot (plus longue sous-séquence commune) → HTML : mots en trop barrés, mots manquants surlignés
+  function diffHTML(input, model, esc) {
+    const a = words(input), b = words(model);
+    const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+    for (let i = a.length - 1; i >= 0; i--)
+      for (let j = b.length - 1; j >= 0; j--)
+        dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const out = [];
+    let i = 0, j = 0;
+    while (i < a.length || j < b.length) {
+      if (i < a.length && j < b.length && a[i] === b[j]) { out.push(esc(a[i])); i++; j++; }
+      else if (j < b.length && (i >= a.length || dp[i][j + 1] >= dp[i + 1][j])) { out.push(`<ins>${esc(b[j])}</ins>`); j++; }
+      else { out.push(`<del>${esc(a[i])}</del>`); i++; }
+    }
+    return out.join(" ");
+  }
+
+  return { grade, similarity, norm, sentence, diffHTML };
 })();

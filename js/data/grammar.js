@@ -5,7 +5,7 @@ window.DATA = window.DATA || {};
 
 DATA.grammar = [
   {
-    id: "present", kind: "conj", title: "Present simple vs continuous",
+    id: "present", level: "A2", kind: "conj", title: "Present simple vs continuous",
     lesson: `
       <p><b>Present simple</b> : habitudes, vérités générales, comportement d'un système.</p>
       <div class="ex">I <b>start</b> work at 9:30. — This function <b>returns</b> null.</div>
@@ -30,7 +30,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "past-perfect", kind: "conj", title: "Past simple vs present perfect",
+    id: "past-perfect", level: "B1", kind: "conj", title: "Past simple vs present perfect",
     lesson: `
       <p>Le <b>passé composé</b> français se traduit souvent par le <b>past simple</b> ! C'est LA faute n°1.</p>
       <h3>Past simple (V-ed / forme irrégulière)</h3>
@@ -54,7 +54,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "since-for", kind: "conj", title: "Depuis : for / since / ago",
+    id: "since-for", level: "B1", kind: "conj", title: "Depuis : for / since / ago",
     lesson: `
       <p>« Je travaille ici <b>depuis</b> 3 ans » → l'anglais utilise le <b>present perfect</b>, jamais le présent.</p>
       <div class="ex"><span class="bad">I work here since 2021</span> → <span class="good">I've worked / I've been working here since 2021</span></div>
@@ -78,7 +78,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "future", kind: "conj", title: "Le futur : will / going to / present continuous",
+    id: "future", level: "B1", kind: "conj", title: "Le futur : will / going to / present continuous",
     lesson: `
       <ul>
         <li><b>will</b> : décision prise sur le moment, promesse, offre, prédiction/opinion. <i>I'll check it now.</i></li>
@@ -100,7 +100,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "conditionals", kind: "conj", title: "Les conditionnels (if…)",
+    id: "conditionals", level: "B1", kind: "conj", title: "Les conditionnels (if…)",
     lesson: `
       <table>
         <tr><th>Type</th><th>Structure</th><th>Exemple</th></tr>
@@ -123,7 +123,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "passive", kind: "conj", title: "La voix passive",
+    id: "passive", level: "B1", kind: "conj", title: "La voix passive",
     lesson: `
       <p><b>be</b> (au bon temps) + <b>participe passé</b>. Très utilisé à l'écrit pro et dans les tickets.</p>
       <table>
@@ -146,7 +146,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "articles", kind: "grammar", title: "Les articles : a / an / the / Ø",
+    id: "articles", level: "A2", kind: "grammar", title: "Les articles : a / an / the / Ø",
     lesson: `
       <ul>
         <li><b>a / an</b> : une chose parmi d'autres, première mention, <b>métier</b> : <i>I'm <b>a</b> developer.</i></li>
@@ -172,7 +172,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "uncountables", kind: "grammar", title: "Indénombrables & quantités",
+    id: "uncountables", level: "A2", kind: "grammar", title: "Indénombrables & quantités",
     lesson: `
       <p>Ces mots n'ont <b>ni pluriel ni a/an</b> :</p>
       <div class="ex"><b>feedback, advice, information, news, equipment, software, hardware, research, progress, knowledge, work, furniture, luggage</b></div>
@@ -197,7 +197,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "prepositions", kind: "grammar", title: "Prépositions : in / on / at",
+    id: "prepositions", level: "A2", kind: "grammar", title: "Prépositions : in / on / at",
     lesson: `
       <table>
         <tr><th>at</th><td>heure précise, moments</td><td>at 10 am, at night, at lunchtime, at the weekend (UK)</td></tr>
@@ -220,7 +220,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "make-do", kind: "grammar", title: "Make vs do",
+    id: "make-do", level: "B1", kind: "grammar", title: "Make vs do",
     lesson: `
       <p><b>make</b> = créer, produire un résultat. <b>do</b> = effectuer une activité, une tâche.</p>
       <table>
@@ -241,7 +241,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "questions", kind: "grammar", title: "Poser des questions",
+    id: "questions", level: "A2", kind: "grammar", title: "Poser des questions",
     lesson: `
       <p>Structure : <b>(mot interrogatif) + auxiliaire + sujet + verbe</b>.</p>
       <div class="ex"><span class="bad">You pushed your changes?</span> → <span class="good">Did you push your changes?</span></div>
@@ -265,7 +265,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "ing-to", kind: "grammar", title: "-ing ou to + verbe ?",
+    id: "ing-to", level: "B1", kind: "grammar", title: "-ing ou to + verbe ?",
     lesson: `
       <table>
         <tr><th>+ -ing</th><td>enjoy, avoid, finish, mind, suggest, keep, consider, look forward to, be used to, après une préposition (for, about, without, before…)</td></tr>
@@ -291,7 +291,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "comparatives", kind: "grammar", title: "Comparatifs & superlatifs",
+    id: "comparatives", level: "A2", kind: "grammar", title: "Comparatifs & superlatifs",
     lesson: `
       <table>
         <tr><th>court (1 syllabe, ou 2 en -y)</th><td>fast → fast<b>er</b> → the fast<b>est</b>; easy → eas<b>ier</b></td></tr>
@@ -313,7 +313,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "modals", kind: "grammar", title: "Modaux : must, have to, should…",
+    id: "modals", level: "B1", kind: "grammar", title: "Modaux : must, have to, should…",
     lesson: `
       <table>
         <tr><th>must / have to</th><td>obligation</td><td>I have to leave early.</td></tr>
@@ -336,7 +336,7 @@ DATA.grammar = [
     ]
   },
   {
-    id: "confusions", kind: "grammar", title: "Confusions classiques",
+    id: "confusions", level: "B1", kind: "grammar", title: "Confusions classiques",
     lesson: `
       <table>
         <tr><th>say / tell</th><td>say something — <b>tell someone</b> something</td></tr>

@@ -1,6 +1,8 @@
 # English Quest
 
-App web (sans dépendances, sans build) pour progresser en anglais pro de game dev : vocabulaire, phrasal verbs, faux amis, grammaire, conjugaison, verbes irréguliers et phrases orales.
+App web (sans dépendances, sans build) pour progresser en anglais pro de game dev, du niveau A2 au C1 : ~1000 cartes de vocabulaire, grammaire (42 leçons), conjugaison, verbes irréguliers, phrases orales, dictées et traductions.
+
+En ligne : https://feelyfox.github.io/english-quest/
 
 ## Lancer en local
 
@@ -18,7 +20,7 @@ La progression est stockée sur chaque appareil. Pour passer de l'ordi au télé
 
 ## Structure
 
-- `js/data/` : le contenu (facile à enrichir)
+- `js/data/` : le contenu, chaque élément est classé par niveau (A2, B1, B2, C1). Ajouter des éléments **à la fin** des listes : les identifiants des cartes dépendent de leur position pour les phrases, dictées et traductions.
 - `js/srs.js` : répétition espacée (SM-2)
 - `js/check.js` : correction tolérante (contractions, fautes de frappe)
 - `js/app.js` : interface et sessions

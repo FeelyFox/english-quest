@@ -1,4 +1,4 @@
-// Phrases clés à l'oral. Format : [situation en français, formulations modèles (séparées par |)]
+// Phrases clés à l'oral. Format : [situation en français, formulations modèles (séparées par |), niveau (B1 par défaut)]
 // Ces cartes sont auto-évaluées : on formule à voix haute, puis on compare au modèle.
 window.DATA = window.DATA || {};
 
@@ -48,6 +48,35 @@ DATA.phrases = {
     ["Féliciter l'équipe", "Great job on the release, it looks amazing!|Well done, everyone!"],
     ["Demander un exemple", "Could you give me an example?"],
     ["Gagner du temps pour réfléchir", "Good question, let me think about that for a second.|Hmm, give me a sec."],
-    ["Dire que tu prends une tâche", "I'll take care of it.|Leave it with me."]
+    ["Dire que tu prends une tâche", "I'll take care of it.|Leave it with me."],
+    // ----- A2 : survie -----
+    ["Te présenter à un nouveau collègue", "Hi, I'm Antoine, I'm a gameplay programmer. Nice to meet you!", "A2"],
+    ["Dire que tu ne parles pas très bien anglais", "Sorry, my English isn't perfect — could you speak a bit more slowly?", "A2"],
+    ["Demander comment s'écrit un mot", "How do you spell that?", "A2"],
+    ["Demander ce que veut dire un mot", "What does … mean?|Sorry, what does that word mean?", "A2"],
+    ["Dire que tu as fini", "I'm done.|I've finished.", "A2"],
+    ["Demander où se trouve quelque chose", "Excuse me, where's the meeting room?|Sorry, where can I find the kitchen?", "A2"],
+    ["Proposer un café", "Do you want a coffee?|Would you like a coffee?", "A2"],
+    ["Dire que tu reviens tout de suite", "I'll be right back.|Back in a minute.", "A2"],
+    // ----- B2 : réunions et diplomatie -----
+    ["Donner un feedback critique avec tact", "I really like the direction, but I think the pacing could be tighter in the second half.", "B2"],
+    ["Recadrer une réunion qui s'égare", "I think we're getting a bit off track — shall we get back to the agenda?", "B2"],
+    ["Proposer de traiter un sujet hors réunion", "Let's take that offline and discuss it after the meeting.", "B2"],
+    ["Présenter un problème et une solution", "The issue is that loading takes too long. What I'd suggest is streaming the level in chunks.", "B2"],
+    ["Négocier le périmètre avec ton producteur", "If we want to hit the deadline, we'll need to cut either the crafting or the side quests.", "B2"],
+    ["Exprimer une inquiétude sans paraître négatif", "I'm a bit concerned about the timeline — do you think it's realistic?", "B2"],
+    ["Défendre ton choix technique", "I went with this approach because it's easier to maintain in the long run.", "B2"],
+    ["Admettre que tu ne sais pas en réunion", "That's a good question — I don't know off the top of my head, but I'll find out.", "B2"],
+    ["Résumer les décisions en fin de réunion", "So, just to recap: Tom handles the UI, I'll fix the save bug, and we'll review on Thursday.", "B2"],
+    ["Demander plus de contexte sur une demande", "Could you give me a bit more context? What problem are we trying to solve?", "B2"],
+    // ----- C1 : influence et nuance -----
+    ["Contester poliment une décision de ton lead", "I appreciate the reasoning, but I'd like to push back a little on that — I think it could hurt performance.", "C1"],
+    ["Ouvrir une présentation devant le studio", "Thanks for having me. Over the next ten minutes, I'll walk you through what we learned from the playtest.", "C1"],
+    ["Présenter un compromis", "Perhaps we could meet halfway: we keep the feature, but scale it back for launch.", "C1"],
+    ["Gérer un désaccord qui s'envenime", "I think we both want the same thing here — let's focus on what's best for the player.", "C1"],
+    ["Annoncer une mauvaise nouvelle", "I'm afraid I've got some bad news: we won't make the certification date.", "C1"],
+    ["Mettre en avant le travail d'un collègue", "I'd just like to give a shout-out to Sarah, who did an amazing job on the lighting.", "C1"],
+    ["Répondre à une question piège en public", "That's a fair point. The short answer is yes, but it comes with some trade-offs I'm happy to go into.", "C1"],
+    ["Conclure une présentation", "To wrap up, the key takeaway is that players want shorter sessions. Happy to take any questions.", "C1"]
   ]
 };

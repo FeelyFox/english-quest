@@ -6,7 +6,7 @@ const Store = (() => {
     log: {},              // "YYYY-MM-DD" -> { n, ok, fresh }
     seenLessons: {},      // id de leçon -> true
     custom: [],           // mots perso : [fr, en, exemple]
-    settings: { newPerDay: 15, accent: "en-GB", autoplay: true, rate: 0.95 }
+    settings: { newPerDay: 15, accent: "en-GB", autoplay: true, rate: 0.95, startLevel: "A2" }
   });
 
   let state = load();
