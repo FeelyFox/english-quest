@@ -1,0 +1,53 @@
+// Phrases clés à l'oral. Format : [situation en français, formulations modèles (séparées par |)]
+// Ces cartes sont auto-évaluées : on formule à voix haute, puis on compare au modèle.
+window.DATA = window.DATA || {};
+
+DATA.phrases = {
+  title: "Phrases clés (oral)",
+  emoji: "🎙️",
+  desc: "Réunions, Slack, small talk : formule à voix haute, puis compare.",
+  items: [
+    ["Demander poliment à quelqu'un de répéter", "Sorry, could you say that again?|Sorry, I didn't catch that."],
+    ["Demander de parler un peu plus lentement", "Would you mind speaking a bit more slowly?|Could you slow down a little, please?"],
+    ["Vérifier que tu as bien compris la demande", "Just to make sure I understand: you want me to…|So, if I understand correctly, …"],
+    ["Demander ce que la personne veut dire par un mot", "What do you mean by…?|Could you clarify what you mean by…?"],
+    ["Dire que tu vas vérifier et revenir vers la personne", "Let me check and I'll get back to you.|I'm not sure, let me find out and get back to you."],
+    ["Donner ton point en stand-up", "Yesterday I worked on the inventory UI. Today I'm going to fix the save bug. No blockers."],
+    ["Dire que tu es bloqué et demander de l'aide", "I'm stuck on this crash — could someone give me a hand?|I'm a bit stuck, have you got a minute?"],
+    ["Proposer ton aide à un collègue", "Do you need a hand with that?|Can I help with anything?"],
+    ["Exprimer un désaccord poliment", "I see your point, but I'm not sure that's the best approach.|I'm not sure I agree, to be honest."],
+    ["Proposer une autre solution", "What if we tried … instead?|Have we considered …?"],
+    ["Demander l'avis de quelqu'un", "What do you think?|How do you feel about this?"],
+    ["Dire que tu n'as pas le temps maintenant", "I don't have the bandwidth right now — can it wait until tomorrow?|I'm swamped at the moment, can we look at it tomorrow?"],
+    ["Demander à repousser un délai", "Would it be possible to push the deadline back by a couple of days?"],
+    ["Signaler un bug", "I've found a bug: the game crashes when you load a save. I've added the repro steps to the ticket."],
+    ["Demander une revue de ta PR", "Could you have a look at my PR when you get a chance?"],
+    ["Donner un retour positif sur une PR", "Looks good overall — just a couple of minor comments."],
+    ["Interrompre poliment en réunion", "Sorry to interrupt, but…|Can I just jump in here?"],
+    ["Reprendre la parole après avoir été interrompu", "As I was saying, …|Just to finish my point, …"],
+    ["Reconnaître une erreur", "My bad, I'll fix it right away.|That's on me, sorry."],
+    ["Remercier pour l'aide", "Thanks, I really appreciate your help.|Cheers, that's really helpful."],
+    ["Lancer une réunion", "Shall we get started?|Right, let's get started."],
+    ["Conclure une réunion", "Let's wrap up. To sum up, …|I think that's everything — thanks, everyone."],
+    ["Proposer un appel rapide pour en discuter", "Shall we jump on a quick call to discuss it?|Want to hop on a quick call?"],
+    ["Dire que tu as une petite question", "Can I ask you something quick?|Quick question: …"],
+    ["Dire que ce n'est pas ton domaine et rediriger", "That's not really my area, but Sam would know.|You'd better ask Sam, he knows that system inside out."],
+    ["Dire que ça marche chez toi et demander quelle build il a", "It works on my machine — which build are you on?"],
+    ["Demander ce qui est prioritaire", "What should I prioritise: the bug fix or the new feature?"],
+    ["Donner une estimation avec réserve", "Roughly two days, but I'll know more once I've looked into it."],
+    ["Prévenir d'un risque", "Just a heads-up: this change might affect performance on Switch."],
+    ["Small talk du lundi matin", "How was your weekend?|Did you get up to anything nice at the weekend?"],
+    ["Répondre au small talk", "Not bad, pretty quiet. How about you?|Yeah, good thanks! You?"],
+    ["Partir le soir", "I'm heading off — see you tomorrow!|Right, I'm off. Have a good evening!"],
+    ["Dire que tu es d'accord", "Sounds good to me.|Fair enough.|Makes sense."],
+    ["Demander comment faire quelque chose dans le moteur", "Do you know how to … in Unreal? I can't figure it out."],
+    ["Annoncer que ton fix est poussé", "I've just pushed the fix; it should be in the next build."],
+    ["T'excuser de répondre tard", "Sorry for the late reply.|Sorry, I've only just seen this."],
+    ["Demander à quelqu'un s'il a 5 minutes (Slack)", "Have you got five minutes for a quick chat?"],
+    ["Dire que tu n'es pas sûr", "I'm not a hundred percent sure, but I think…"],
+    ["Féliciter l'équipe", "Great job on the release, it looks amazing!|Well done, everyone!"],
+    ["Demander un exemple", "Could you give me an example?"],
+    ["Gagner du temps pour réfléchir", "Good question, let me think about that for a second.|Hmm, give me a sec."],
+    ["Dire que tu prends une tâche", "I'll take care of it.|Leave it with me."]
+  ]
+};
